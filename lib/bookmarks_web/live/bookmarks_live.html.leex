@@ -1,0 +1,96 @@
+<div class="max-w-full overflow-hidden text-center">
+    <div class="px-4 py-5 sm:p-6">
+      <div class="grid grid-cols-1 gap-6">
+        <form class="col-span-1 sm:col-span-3" phx-change="search">
+          <div class="relative">
+            <input
+              name="q" value="<%= @query %>"
+              class="w-full h-20 px-5 pr-10 text-2xl antialiased text-center placeholder-gray-600 bg-white shadow md:text-3xl rounded-2xl focus:outline-none"
+              placeholder="Search for urls or tags or names">
+            <svg class="absolute top-0 left-0 w-8 h-8 mt-6 ml-4 text-gray-600 fill-current" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 56.966 56.966" style="enable-background:new 0 0 56.966 56.966;" xml:space="preserve" width="512px" height="512px">
+              <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z"/>
+            </svg>
+          </div>
+        </form>
+
+        <!-- Add new Bookmark FORM -->
+        <form class="flex flex-col items-start" phx-submit="save_bookmark">
+          <%= if @bookmark.id do %>
+            <input type="hidden" name="id" value="<%= @bookmark.id %>"/>
+          <% end %>
+          <p class="py-8 font-sans text-4xl antialiased font-semibold text-gray-600">Add a new bookmark</p>
+          <div class="flex flex-col items-center w-full bg-gray-100 shadow md:items-start rounded-2xl">
+            <div class="flex flex-col w-full md:flex-row">
+              <div class="flex flex-col items-start w-full p-6 md:w-1/3">
+                <label class="text-3xl antialiased font-medium text-gray-700">Name</label>
+                <input
+                  name="name" value="<%= @bookmark.name %>"
+                              class="w-full h-20 px-5 pr-10 text-2xl antialiased text-center placeholder-gray-600 bg-white shadow md:text-3xl rounded-2xl focus:outline-none"
+                              placeholder="Add the name of you new bookmark">
+              </div>
+              <div class="flex flex-col items-start w-full p-6 md:w-1/2">
+                <label class="text-3xl antialiased font-medium text-gray-700">URL</label>
+                <input
+                  name="url" value="<%= @bookmark.url %>"
+                              class="w-full h-20 px-5 pr-10 text-2xl antialiased text-center placeholder-gray-600 bg-white shadow md:text-3xl rounded-2xl focus:outline-none"
+                              placeholder="Add the URL of you new bookmark">
+              </div>
+              <div class="flex flex-col items-start w-full p-6 md:w-1/3">
+                <label class="text-3xl antialiased font-medium text-gray-700">Tags</label>
+                <input
+                  name="tags" value="<%= @bookmark.tags %>"
+                              class="w-full h-20 px-5 pr-10 text-2xl antialiased text-center placeholder-gray-600 bg-white shadow md:text-3xl rounded-2xl focus:outline-none"
+                              placeholder="Tags should be separated by comma">
+              </div>
+            </div>
+            <div class="flex w-full px-6 md:items-start">
+              <button class="w-full mb-10 font-sans font-normal text-gray-100 bg-gray-700 outline-none md:w-1/5 md:px-4 md:py-2 rounded-xl" type="submit">
+                <%= if @bookmark.id do %>
+                  Edit Bookmark
+                <% else %>
+                  Add Bookmark
+                <% end %>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <br/><br/>
+      <%= for website <- @websites do %>
+        <div class="flex items-center justify-between p-8 bg-gray-100 shadow rounded-2xl">
+          <a href="<%= website.url %>" target="_blank">
+            <div class="flex">
+              <div>
+                <img class="w-24 h-24 rounded-xl" src="<%= website.logo_url %>"/>
+              </div>
+              <div class="mx-6">
+                <div class="text-3xl font-semibold text-justify text-gray-700"><%= website.name %></div>
+                <div class="text-3xl antialiased font-light text-justify text-gray-500">
+                  <%= website.url %>
+                </div>
+                <div class="flex items-center mt-2">
+                  <%= for tag <- String.split(website.tags, ",") do %>
+                    <div class="px-3 py-1 mr-2 text-xl antialiased font-light text-gray-800 bg-gray-300 rounded-3xl">
+                      <%= tag %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </a>
+          <form>
+            <div class="flex flex-col items-center justify-end md:flex-row">
+              <button type="button" class="border-none cursor-pointer md:w-16 md:h-16 md:mr-12 md:pt-5 md:rounded-2xl md:hover:bg-gray-300" phx-click="change_bookmark" value="<%= website.id %>">
+                <svg class="w-16 md:ml-3" xmlns="http://www.w3.org/2000/svg"><path d="M1.439 16.873l-1.439 7.127 7.128-1.437 16.873-16.872-5.69-5.69-16.872 16.872zm4.702 3.848l-3.582.724.721-3.584 2.861 2.86zm15.031-15.032l-13.617 13.618-2.86-2.861 10.825-10.826 2.846 2.846 1.414-1.414-2.846-2.846 1.377-1.377 2.861 2.86z"/></svg>
+              </button>
+              <button type="button" class="border-none cursor-pointer md:w-16 md:h-16 md:pt-5 md:rounded-2xl md:hover:bg-gray-300" phx-click="delete_bookmark" value="<%= website.id %>">
+                <svg class="w-16 md:ml-3" xmlns="http://www.w3.org/2000/svg"><path d="M9 19c0 .552-.448 1-1 1s-1-.448-1-1v-10c0-.552.448-1 1-1s1 .448 1 1v10zm4 0c0 .552-.448 1-1 1s-1-.448-1-1v-10c0-.552.448-1 1-1s1 .448 1 1v10zm4 0c0 .552-.448 1-1 1s-1-.448-1-1v-10c0-.552.448-1 1-1s1 .448 1 1v10zm5-17v2h-20v-2h5.711c.9 0 1.631-1.099 1.631-2h5.315c0 .901.73 2 1.631 2h5.712zm-3 4v16h-14v-16h-2v18h18v-18h-2z"/></svg>
+              </button>
+            </div>
+          </form>
+        </div>
+        <br/>
+      <% end %>
+    </div>
+</div>

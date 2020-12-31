@@ -1,0 +1,33 @@
+<h1>Show Website</h1>
+
+<ul>
+
+  <li>
+    <strong>Url:</strong>
+    <%= @website.url %>
+  </li>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @website.name %>
+  </li>
+
+  <li>
+    <strong>Logo url:</strong>
+    <%= @website.logo_url %>
+  </li>
+
+  <li>
+    <strong>Tags:</strong>
+    <%= @website.tags %>
+  </li>
+
+  <li>
+    <strong>Is favorite:</strong>
+    <%= @website.is_favorite %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.website_path(@conn, :edit, @website) %></span>
+<span><%= link "Back", to: Routes.website_path(@conn, :index) %></span>
