@@ -21,8 +21,10 @@ defmodule Bookmarks.Bookmark do
     case attrs do
       %{user: user} ->
         {:ok, query} = Website.all_websites_by_user_query(user)
+
         Repo.all(query)
         |> Repo.preload(:user)
+
       _ ->
         Repo.all(Website)
         |> Repo.preload(:user)
@@ -40,10 +42,13 @@ defmodule Bookmarks.Bookmark do
   """
   def list_websites_by(%{user_id: user_id, param: param}) do
     attribute_param = "%#{param}%"
+
     query =
       from w in Website,
-      where: w.user_id == ^(user_id)
-             and (ilike(w.name, ^attribute_param) or ilike(w.url, ^attribute_param))
+        where:
+          w.user_id == ^user_id and
+            (ilike(w.name, ^attribute_param) or ilike(w.url, ^attribute_param))
+
     Repo.all(query)
     |> Repo.preload(:user)
   end
@@ -62,7 +67,7 @@ defmodule Bookmarks.Bookmark do
       ** (Ecto.NoResultsError)
 
   """
-  def get_website!(id), do: Repo.get!(Website, id)
+  def get_website!(id), do: Repo.get!(Website, id) |> Repo.preload(:user)
 
   @doc """
   Creates a website.

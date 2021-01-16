@@ -21,7 +21,9 @@ defmodule BookmarksWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     #resources "/", WebsiteController
-    live "/", BookmarksLive
+    live "/", BookmarksLive, :index
+    live "/:id/delete-bookmark", BookmarksLive, :delete_bookmark
+    live "/:id/edit", BookmarksLive, :edit_bookmark
 
     #live "/", PageLive, :index
   end

@@ -4,92 +4,43 @@ defmodule BookmarksWeb.BookmarksLive do
   alias Bookmarks.Bookmark
   alias Bookmarks.Bookmark.Website
   alias Bookmarks.Accounts
+  alias Bookmarks.Accounts.User
+  alias BookmarksWeb.ModalComponent
+  alias BookmarksWeb.BookmarkFormComponent
 
   @impl true
   def mount(_params, session, socket) do
     if connected?(socket) do
       user = get_user(session, socket)
       websites = Bookmark.list_websites(%{user: user})
-      {:ok, assign(socket, bookmark: %Website{}, user_id: user.id, websites: websites, query: "")}
+
+      {:ok,
+       assign(socket,
+         changeset: Bookmark.change_website(%Website{}),
+         user_id: user.id,
+         websites: websites,
+         bookmark_to_delete: nil,
+         query: ""
+       )}
     else
-      {:ok, assign(socket, bookmark: %Website{}, websites: [], query: "")}
-    end
-  end
-
-  ## Events
-
-  @impl true
-  def handle_event("save_bookmark", %{"id" => id, "name" => name, "url" => url, "tags" => tags}, socket) do
-    user    = Accounts.get_user!(socket.assigns.user_id)
-    website = Bookmark.get_website!(id)
-    attrs = %{name: name, url: url, tags: tags}
-    case Bookmark.update_website(website, attrs) do
-      {:ok, _} ->
-        websites = Bookmark.list_websites(%{user: user})
-        {:noreply,
-          socket
-          |> assign(:websites, websites)
-          |> assign(:bookmark, %Website{})
-          |> put_flash(:info, "Bookmark updated!")
-        }
-      {:error, _} ->
-        {:noreply,
-          socket
-          |> put_flash(:error, "We had a problem updating the bookmark")
-        }
+      {:ok,
+       assign(socket, changeset: Bookmark.change_website(%Website{}), user_id: nil, websites: [], query: "")}
     end
   end
 
   @impl true
-  def handle_event("save_bookmark", %{"name" => name, "url" => url, "tags" => tags}, socket) do
-    user  = Accounts.get_user!(socket.assigns.user_id)
-    attrs = %{name: name, url: url, tags: tags, user: user}
-    case Bookmark.create_website(attrs) do
-      {:ok, _} ->
-        websites = Bookmark.list_websites(%{user: user})
-        {:noreply,
-          socket
-          |> assign(:websites, websites)
-          |> put_flash(:info, "Bookmark added!")
-        }
-      {:error, _} ->
-        {:noreply,
-          socket
-          |> put_flash(:error, "We had a problem adding the bookmark")
-        }
-    end
+  def handle_params(params, _url, socket) do
+    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
-
-
   @impl true
-  def handle_event("change_bookmark", %{"value" => id}, socket) do
-    bookmark = Bookmark.get_website!(id)
-    {:noreply,
-      socket
-      |> assign(:bookmark, bookmark)
-    }
+  def handle_event("edit_bookmark", %{"bookmark-id" => bookmark_id}, socket) do
+    {:noreply, push_patch_to_with_id(socket, :edit_bookmark, String.to_integer(bookmark_id))}
   end
 
-
   @impl true
-  def handle_event("delete_bookmark", %{"value" => id}, socket) do
-    website = Bookmark.get_website!(id)
-    case Bookmark.delete_website(website) do
-      {:ok, _} ->
-        user  = Accounts.get_user!(socket.assigns.user_id)
-        websites = Bookmark.list_websites(%{user: user})
-        {:noreply,
-          socket
-          |> assign(:websites, websites)
-          |> put_flash(:info, "Bookmark added!")
-        }
-      {:error, _} ->
-        {:noreply,
-          socket
-          |> put_flash(:error, "We had a problem deleting this bookmark")
-        }
-    end
+  def handle_event("delete_bookmark", %{"bookmark-id" => bookmark_id}, socket) do
+    {:noreply, push_patch_to_with_id(socket, :delete_bookmark, String.to_integer(bookmark_id))}
   end
 
   @impl true
@@ -98,7 +49,101 @@ defmodule BookmarksWeb.BookmarksLive do
     {:noreply, assign(socket, websites: websites)}
   end
 
+  ## BookmarkFormComponent Handle Events
+  @impl true
+  def handle_info({BookmarkFormComponent, :bookmark_saved, success_message, user}, socket) do
+    {:noreply,
+      push_patch(
+        socket
+        |> assign(:changeset, Bookmark.change_website(%Website{}))
+        |> assign(:websites, Bookmark.list_websites(%{user: user}))
+        |> put_flash(:info, success_message),
+        to: Routes.bookmarks_path(socket, :index),
+        replace: true
+      )
+    }
+  end
+
+  ## Modal Component Handle Events
+  # Handle message to self() from Remove Bookmark confirmation modal ok button
+  @impl true
+  def handle_info(
+        {ModalComponent, :button_pressed, %{action: "delete-bookmark"}},
+        %{assigns: %{bookmark_to_delete: bookmark_to_delete}} = socket
+      ) do
+    {:ok, websites} = delete_bookmark(bookmark_to_delete, socket)
+
+    {:noreply,
+     socket
+     |> assign(:websites, websites)
+     |> put_flash(:info, "Bookmark deleted successfuly")}
+  end
+
+  # Handle message to self() from Remove User confirmation modal cancel button
+  @impl true
+  def handle_info(
+        {ModalComponent, :button_pressed, %{action: "cancel-delete-bookmark", param: _}},
+        socket
+      ) do
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info(
+        {ModalComponent, :modal_closed, %{id: "confirm-delete-bookmark"}},
+        socket
+      ) do
+    {:noreply, push_patch_to(socket, :index)}
+  end
+
   ## Private Methods
+
+  defp delete_bookmark(bookmark, socket) do
+    case Bookmark.delete_website(bookmark) do
+      {:ok, _} ->
+        user = Accounts.get_user!(socket.assigns.user_id)
+        websites = Bookmark.list_websites(%{user: user})
+        {:ok, websites}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  defp apply_action(socket, :edit_bookmark, %{"id" => bookmark_id}) do
+    website = Bookmark.get_website!(bookmark_id)
+    assign(socket, changeset: Bookmark.change_website(website))
+  end
+
+  defp apply_action(socket, :delete_bookmark, %{"id" => bookmark_id}) do
+    website = Bookmark.get_website!(bookmark_id)
+
+    if website do
+      assign(socket, bookmark_to_delete: website)
+    else
+      push_patch_to(socket, :index)
+    end
+  end
+
+  defp apply_action(socket, :index, _params) do
+    assign(socket, bookmark_to_delete: nil)
+  end
+
+  defp push_patch_to_with_id(socket, action, bookmark_id) do
+    push_patch(
+      socket,
+      to: Routes.bookmarks_path(socket, action, bookmark_id),
+      replace: true
+    )
+  end
+
+  defp push_patch_to(socket, action) do
+    push_patch(
+      socket,
+      to: Routes.bookmarks_path(socket, action),
+      replace: true
+    )
+  end
 
   defp search(query, user_id) do
     Bookmark.list_websites_by(%{user_id: user_id, param: query})
@@ -109,9 +154,8 @@ defmodule BookmarksWeb.BookmarksLive do
       Accounts.get_user!(user_id)
     else
       socket_id = Map.get(session, "live_socket_id")
-      token = socket_id |> String.split(":") |> List.last |> Base.decode64!
-      user = Accounts.get_user_by_session_token(token)
-      user
+      token = socket_id |> String.split(":") |> List.last() |> Base.url_decode64!()
+      Accounts.get_user_by_session_token(token)
     end
   end
 end

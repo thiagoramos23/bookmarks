@@ -3,6 +3,11 @@
 @import "../node_modules/nprogress/nprogress.css";
 
 @tailwind base;
+
+[x-cloak] {
+  display: none;
+}
+
 @tailwind components;
 @tailwind utilities;
 

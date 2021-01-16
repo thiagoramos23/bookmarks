@@ -11,7 +11,7 @@ defmodule BookmarksWeb.ErrorHelpers do
   def error_tag(form, field) do
     Enum.map(Keyword.get_values(form.errors, field), fn error ->
       content_tag(:span, translate_error(error),
-        class: "invalid-feedback",
+        class: "text-2xl pt-8 font-medium antialised text-red-700 invalid-feedback",
         phx_feedback_for: input_id(form, field)
       )
     end)

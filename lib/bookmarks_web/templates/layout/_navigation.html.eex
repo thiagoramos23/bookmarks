@@ -43,7 +43,7 @@
               From: "transform opacity-100 scale-100"
               To: "transform opacity-0 scale-95"
             -->
-            <div @click="open = false" @click.away="open = false" x-show="open" class="absolute right-0 w-48 py-1 mt-2 bg-white shadow-lg origin-top-right rounded-md ring-1 ring-black ring-opacity-5" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
+            <div @click="open = false" @click.away="open = false" x-show="open" x-cloak class="absolute right-0 w-48 py-1 mt-2 bg-white shadow-lg origin-top-right rounded-md ring-1 ring-black ring-opacity-5" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
               <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 md:text-2xl" role="menuitem">Your Profile</a>
 
               <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 md:text-2xl" role="menuitem">Settings</a>

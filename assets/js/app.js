@@ -18,8 +18,39 @@ import NProgress from "nprogress"
 import {LiveSocket} from "phoenix_live_view"
 import "alpinejs"
 
+let Hooks = {}
+Hooks.Modal = {
+  mounted() {
+    window.modalHook = this
+  },
+  destroyed() {
+    window.modalHook = null
+  },
+  modalClosing(leave_duration) {
+    setTimeout(() => {
+      var selector = '#' + this.el.id
+      if (document.querySelector(selector)) {
+        this.pushEventTo(selector, 'modal-closed', {})
+      }
+    }, leave_duration);
+  }
+}
+
+Hooks.ConnectionStatus = {
+  mounted() {
+    window.connected = true
+  },
+  disconnected() {
+    window.connected = false
+  },
+  reconnected() {
+    window.connected = true
+  }
+}
+
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket('/live', Socket, {
+  hooks: Hooks,
   dom: {
     onBeforeElUpdated(from, to) {
       if (from.__x) {
