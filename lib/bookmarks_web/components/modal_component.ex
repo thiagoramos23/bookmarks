@@ -159,15 +159,15 @@ defmodule BookmarksWeb.ModalComponent do
              x-transition:leave="ease-in duration-<%= @leave_duration %>"
              x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
              x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-             class="overflow-hidden bg-white rounded-lg shadow-xl transform transition-all sm:max-w-lg sm:w-full"
+             class="overflow-hidden bg-white rounded-lg shadow-xl md:max-w-3xl transform transition-all sm:w-full"
              role="dialog"
              aria-modal="true"
              aria-labelledby="modal-headline"
              aria-describedby="modal-description">
           <div class="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
             <div class="sm:flex sm:items-start">
-              <div class="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-red-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
-                <svg class="w-6 h-6 text-red-600"
+              <div class="flex items-center justify-center flex-shrink-0 w-10 h-10 mx-auto bg-red-100 rounded-full md:w-16 md:h-16 sm:mx-0">
+                <svg class="w-6 h-6 text-red-600 md:w-14 md:h-14"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor">
@@ -178,12 +178,12 @@ defmodule BookmarksWeb.ModalComponent do
                 </svg>
               </div>
               <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                <h3 class="text-2xl leading-6 font-medium <%= @title_color %>"
+                <h3 class="text-2xl md:text-3xl leading-6 font-medium <%= @title_color %>"
                     id="modal-headline">
                       <%= @title %>
                     </h3>
                 <div class="mt-2">
-                  <p class="text-xl leading-5 <%= @body_color %>"
+                  <p class="text-xl md:text-3xl leading-5 <%= @body_color %>"
                      id="modal-description">
                     <%= @body %>
                   </p>
@@ -196,7 +196,7 @@ defmodule BookmarksWeb.ModalComponent do
               <button type="button"
                       phx-click="right-button-click"
                       phx-target="#<%= @id %>"
-                      class="inline-flex justify-center w-full rounded-md border border-transparent px-4 bg-<%= @right_button_color %>-600 text-2xl leading-6 font-medium text-white shadow-sm hover:bg-<%= @right_button_color %>-500 focus:outline-none focus:border-<%= @right_button_color %>-700 focus:shadow-outline-<%= @right_button_color %> transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+                      class=" justify-center w-full rounded-md border md:text-2xl border-transparent px-4 bg-<%= @right_button_color %>-600 text-2xl leading-6 font-medium text-white shadow-sm hover:bg-<%= @right_button_color %>-500 focus:outline-none focus:border-<%= @right_button_color %>-700 focus:shadow-outline-<%= @right_button_color %> transition ease-in-out duration-150 sm:text-sm sm:leading-5"
                       x-ref="modalRightButton"
                       @click="if (connected) open = false">
                 <%= @right_button %>
@@ -207,7 +207,7 @@ defmodule BookmarksWeb.ModalComponent do
               <button type="button"
                       phx-click="left-button-click"
                       phx-target="#<%= @id %>"
-                      class="inline-flex justify-center w-full px-4 py-2 text-2xl font-medium text-gray-700 bg-white border border-gray-300 rounded-md leading-6 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+                      class="justify-center w-full px-4 py-2 text-2xl font-medium text-gray-700 bg-white border border-gray-300 md:text-2xl rounded-md leading-6 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5"
                       @click="if (connected) open = false">
                 <%= @left_button %>
               </button>

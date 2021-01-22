@@ -44,6 +44,9 @@ defmodule BookmarksWeb.BookmarkFormComponent do
       {:ok, _} ->
 
         send(self(), {__MODULE__, :bookmark_saved, "Bookmark Saved", user})
+        # {:ok, %HTTPoison.Response{status_code: 200, body: body}} = HTTPoison.get("https://elixir-lang.org")
+        #  {:ok, html} = Floki.parse_document(body)
+        #Floki.find(html, "img") |> List.first |> elem(1) |> Enum.into(%{}) |> Map.get("src")
         {:noreply, socket}
 
       {:error, %Ecto.Changeset{} = changeset} ->

@@ -5,8 +5,10 @@ defmodule BookmarksWeb.BookmarksLive do
   alias Bookmarks.Bookmark.Website
   alias Bookmarks.Accounts
   alias Bookmarks.Accounts.User
+
   alias BookmarksWeb.ModalComponent
   alias BookmarksWeb.BookmarkFormComponent
+  alias BookmarksWeb.SearchInputComponent
 
   @impl true
   def mount(_params, session, socket) do
@@ -62,6 +64,13 @@ defmodule BookmarksWeb.BookmarksLive do
         replace: true
       )
     }
+  end
+
+  ## Search Input Component Handle Event
+  @impl true
+  def handle_info({SearchInputComponent, :execute_search, %{term: query, user_id: user_id}}, socket) do
+    websites = search(query, user_id)
+    {:noreply, assign(socket, websites: websites)}
   end
 
   ## Modal Component Handle Events
